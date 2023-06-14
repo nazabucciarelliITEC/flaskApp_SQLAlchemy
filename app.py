@@ -35,7 +35,7 @@ class Province(db.Model):
         return self.name
 
 
-class Localidad(db.Model):
+class Locality(db.Model):
     __tablename__ = "locality"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -67,3 +67,5 @@ class Person(db.Model):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
