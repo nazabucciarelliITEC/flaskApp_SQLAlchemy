@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import ForeignKey
@@ -30,7 +30,7 @@ class Province(db.Model):
     name = db.Column(db.String(100), nullable=False)
     country_id = db.Column(db.Integer, ForeignKey(
         "country.id"), nullable=False)
-
+ 
     def __str__(self):
         return self.name
 
@@ -63,9 +63,30 @@ class Person(db.Model):
     def __str__():
         return self.name + " " + self.lastname
 
-
+ 
+@app.context_processor  
+def inject_countries():
+    countries = db.session.query(Country).all() 
+    return dict(countries = countries) # Se usa el dict() porque es mas legible. Lo parsea a dictionarie
+ 
 @app.route("/")
 def index():
     return render_template("index.html")
-
-
+  
+@app.route("/add_country", methods=['POST'])
+def add_country():
+    if request.method == 'POST':
+        country_name = request.form['name']
+        new_country = Country(name=country_name)
+        db.session.add(new_country)
+        db.session.commit()
+        return redirect(url_for('index'))   
+                       
+@app.route("/delete_country/<id>")
+def delete_country(id):
+    country = Country.query.get(id)
+    db.session.delete(country)
+    db.session.commit()
+    return redirect(url_for('index')) 
+     
+  
